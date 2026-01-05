@@ -1,5 +1,3 @@
-<img width="1917" height="927" alt="image" src="https://github.com/user-attachments/assets/1b4b250a-71fc-4fe4-854e-53aacd7c3a0a" /># Informe de Laboratorio: Attacktive Directory
-
 ## 1. Fase de Reconocimiento
 Se realizó un escaneo detallado de la red para identificar los servicios activos en el Controlador de Dominio.
 
