@@ -98,3 +98,18 @@ Como analista de seguridad, la importancia de este laboratorio no es solo el acc
 1. **Remediación Inmediata:** Desactivar la opción "Do not require Kerberos preauthentication" en la cuenta `svc-admin`.
 2. **Mejora de Cifrado:** Forzar el uso de **AES-256** para Kerberos, deshabilitando RC4 y DES a nivel de dominio para dificultar el cracking offline.
 3. **Monitoreo:** Implementar alertas en el SIEM para el Event ID 4768 cuando el tipo de cifrado sea **0x17** (RC4).
+
+## 🛡️ 8. Conclusiones y Estrategia de Defensa (Perfil SOC)
+
+Como resultado de este laboratorio, se concluye que la mala configuración de cuentas (específicamente la desactivación de la pre-autenticación de Kerberos) representa un riesgo crítico de compromiso de identidad. Para mitigar estos riesgos en un entorno empresarial, se proponen las siguientes acciones:
+
+### A. Plan de Remediación (Hardening)
+1. **Auditoría de Cuentas:** Ejecutar un script de PowerShell periódicamente para identificar cuentas con el atributo `DONT_REQ_PREAUTH` activo y forzar la pre-autenticación.
+2. **Actualización de Protocolos:** Deshabilitar los tipos de cifrado débiles (RC4) y forzar el uso exclusivo de AES-256 para los tickets de Kerberos.
+3. **Políticas de Contraseñas:** Implementar políticas de longitud y complejidad para mitigar el éxito de ataques de cracking offline como el demostrado con `John the Ripper`.
+
+### B. Reglas de Correlación para el SIEM
+Para una detección proactiva, recomiendo la implementación de las siguientes lógicas en el sistema de monitoreo:
+
+* **Alerta de AS-REP Roasting:** Generar una alerta de severidad **Alta** si se detecta un **Event ID 4768** donde el campo `Pre-Auth Type` sea `0` y el `Ticket Encryption` sea `0x17`.
+* **Alerta de Enumeración (Brute Force):** Generar una alerta de severidad **Media** si una única dirección IP de origen genera más de 20 eventos **4771** (Fallo de pre-autenticación) en un lapso de 5 minutos.
