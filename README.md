@@ -19,7 +19,8 @@ Se ejecutó un escaneo de red exhaustivo para mapear los servicios del Controlad
 **Comando ejecutado:**
 `nmap -p- --open -sS -sC -sV --min-rate 5000 -vvv -n -Pn 10.65.152.175`
 
-![Resultado de Nmap](nmap_result.png)
+<img width="1918" height="930" alt="image" src="https://github.com/user-attachments/assets/8776a4ff-d34f-42ee-84a4-3e89f6825ba0" />
+
 
 ### Análisis de Exposición (Visión SOC):
 * **Identificación de Activos:** La exposición de los puertos **88 (Kerberos)**, **389 (LDAP)** y **445 (SMB)** confirma que el activo es un Controlador de Dominio (Tier 0) para el dominio `spookysec.local`.
