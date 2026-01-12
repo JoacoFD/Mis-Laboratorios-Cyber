@@ -40,7 +40,8 @@ Se utilizó un diccionario de usuarios y se configuraron hilos optimizados para 
 **Comando ejecutado:**
 `python3 kerbrute.py -users userlist.txt -passwords passwordlist.txt -domain spookysec.local -t 100`
 
-<img width="900" height="185" alt="Captura de pantalla 2026-01-11 222548" src="https://github.com/user-attachments/assets/0f13ab39-3568-4269-b23e-a7c57eff0f32" />
+<img width="918" height="295" alt="Captura de pantalla 2026-01-11 220015" src="https://github.com/user-attachments/assets/af119aaf-5d26-432f-a8b0-066602601bec" />
+
 
 
 ### Análisis SOC (Detección y Eventos):
@@ -66,3 +67,34 @@ Al haber identificado que `svc-admin` no requiere pre-autenticación de Kerberos
 ### Análisis de Riesgo:
 * **Vulnerabilidad:** Configuración débil en la cuenta de servicio.
 * **Detección SOC:** Monitorear solicitudes de tickets AS-REQ que no incluyan el campo de pre-autenticación, especialmente si utilizan tipos de cifrado antiguos como **RC4 (0x17)**, visibles en el tráfico de red o logs detallados de Kerberos.
+## 5. Fase 3: Acceso Inicial - AS-REP Roasting
+Tras identificar que el usuario `svc-admin` tiene la propiedad `DONT_REQ_PREAUTH` activada, procedí a realizar un ataque de **AS-REP Roasting** utilizando `GetNPUsers.py` para obtener el hash de su ticket Kerberos.
+
+## 6. Fase 4: Cracking Offline de Credenciales
+Utilicé **John the Ripper** con el diccionario `rockyou.txt` para descifrar el hash obtenido. El proceso fue exitoso debido al uso de un cifrado vulnerable.
+
+### Evidencia Técnica:
+**Comando ejecutado:**
+`john --wordlist=/usr/share/wordlists/rockyou.txt hash`
+
+<img width="900" height="185" alt="Captura de pantalla 2026-01-11 222548" src="https://github.com/user-attachments/assets/14989fd0-c737-4993-8613-09572e97113d" />
+
+
+* **Usuario:** `svc-admin`
+* **Contraseña Identificada:** `management2005`
+
+---
+
+## 🛡️ 7. Análisis de Detección (Perspectiva SOC/Blue Team)
+Como analista de seguridad, la importancia de este laboratorio no es solo el acceso, sino la capacidad de detectar estas trazas en los **Logs Crudos** del sistema.
+
+### Eventos Críticos Identificados:
+| Event ID | Descripción | Significado Forense |
+| :--- | :--- | :--- |
+| **4771** | Kerberos Pre-Auth Failed | Generado masivamente durante la fase de enumeración (Kerbrute). El código de error `0x6` indica usuarios inexistentes. |
+| **4768** | TGT Request | Registrado cuando solicité el hash de `svc-admin`. El campo de pre-autenticación aparece como "0" (no requerida). |
+
+### Recomendaciones de Endurecimiento (Hardening):
+1. **Remediación Inmediata:** Desactivar la opción "Do not require Kerberos preauthentication" en la cuenta `svc-admin`.
+2. **Mejora de Cifrado:** Forzar el uso de **AES-256** para Kerberos, deshabilitando RC4 y DES a nivel de dominio para dificultar el cracking offline.
+3. **Monitoreo:** Implementar alertas en el SIEM para el Event ID 4768 cuando el tipo de cifrado sea **0x17** (RC4).
