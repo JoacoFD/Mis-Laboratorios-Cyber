@@ -19,6 +19,7 @@ Se ejecutó un escaneo de red exhaustivo para mapear los servicios del Controlad
 **Comando ejecutado:**
 `nmap -p- --open -sS -sC -sV --min-rate 5000 -vvv -n -Pn 10.65.152.175`
 
+
 <img width="1918" height="930" alt="image" src="https://github.com/user-attachments/assets/8776a4ff-d34f-42ee-84a4-3e89f6825ba0" />
 
 
@@ -40,6 +41,7 @@ Se utilizó un diccionario de usuarios y se configuraron hilos optimizados para 
 **Comando ejecutado:**
 `python3 kerbrute.py -users userlist.txt -passwords passwordlist.txt -domain spookysec.local -t 100`
 
+
 <img width="918" height="295" alt="Captura de pantalla 2026-01-11 220015" src="https://github.com/user-attachments/assets/af119aaf-5d26-432f-a8b0-066602601bec" />
 
 
@@ -60,6 +62,8 @@ Al haber identificado que `svc-admin` no requiere pre-autenticación de Kerberos
 ### Evidencia Técnica:
 **Comando ejecutado:**
 `impacket-GetNPUsers spookysec.local/svc-admin -no-pass`
+
+
 <img width="1491" height="162" alt="Captura de pantalla 2026-01-11 221943" src="https://github.com/user-attachments/assets/08ecfb28-d7e8-4c43-966d-3ce3bf666efd" />
 
 
@@ -76,6 +80,7 @@ Utilicé **John the Ripper** con el diccionario `rockyou.txt` para descifrar el 
 ### Evidencia Técnica:
 **Comando ejecutado:**
 `john --wordlist=/usr/share/wordlists/rockyou.txt hash`
+
 
 <img width="900" height="185" alt="Captura de pantalla 2026-01-11 222548" src="https://github.com/user-attachments/assets/14989fd0-c737-4993-8613-09572e97113d" />
 
