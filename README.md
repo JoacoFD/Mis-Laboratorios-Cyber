@@ -30,4 +30,39 @@ Se ejecutó un escaneo de red exhaustivo para mapear los servicios del Controlad
 ---
 
 ## 4. Fase 2: Enumeración de Usuarios (Kerberos Brute Force)
-*(Próximamente: Documentación de la fase de Kerbrute y análisis de Event IDs 4768/4771)*
+
+
+En esta fase se realizó una enumeración de usuarios válida contra el KDC (Key Distribution Center) utilizando la herramienta **Kerbrute**. Esta técnica es fundamental para identificar cuentas existentes sin alertar bloqueos de cuenta por contraseñas incorrectas.
+
+### Evidencia Técnica:
+Se utilizó un diccionario de usuarios y se configuraron hilos optimizados para el entorno. Se identificaron múltiples cuentas válidas, destacando `svc-admin` con la etiqueta **[NOT PREAUTH]**, lo que indica una vulnerabilidad crítica de configuración.
+
+**Comando ejecutado:**
+`python3 kerbrute.py -users userlist.txt -passwords passwordlist.txt -domain spookysec.local -t 100`
+
+<img width="900" height="185" alt="Captura de pantalla 2026-01-11 222548" src="https://github.com/user-attachments/assets/0f13ab39-3568-4269-b23e-a7c57eff0f32" />
+
+
+### Análisis SOC (Detección y Eventos):
+Desde la perspectiva de monitoreo, este ataque genera ruido específico en el Controlador de Dominio que debe ser alertado en un SIEM:
+
+* **Event ID 4768 (TGT Request):** Se genera cada vez que Kerbrute valida un usuario existente. Un volumen inusual de este evento desde una sola IP de origen es un IoC (Indicador de Compromiso) claro.
+* **Event ID 4771 (Kerberos pre-authentication failed):** Aparece cuando se intenta validar un usuario que no existe o con datos erróneos. El analista debe buscar el código de error `0x6` (cliente no encontrado en la base de datos de AD).
+* **Identificación Crítica:** El usuario `svc-admin` permite solicitudes sin pre-autenticación, lo que expone al dominio a ataques de **AS-REP Roasting**.
+
+---
+
+## 5. Fase 3: Acceso Inicial (AS-REP Roasting)
+
+Al haber identificado que `svc-admin` no requiere pre-autenticación de Kerberos, se procedió a extraer el hash del Ticket Granting Response (AS-REP) para su posterior crackeo offline.
+
+### Evidencia Técnica:
+**Comando ejecutado:**
+`impacket-GetNPUsers spookysec.local/svc-admin -no-pass`
+<img width="1491" height="162" alt="Captura de pantalla 2026-01-11 221943" src="https://github.com/user-attachments/assets/08ecfb28-d7e8-4c43-966d-3ce3bf666efd" />
+
+
+
+### Análisis de Riesgo:
+* **Vulnerabilidad:** Configuración débil en la cuenta de servicio.
+* **Detección SOC:** Monitorear solicitudes de tickets AS-REQ que no incluyan el campo de pre-autenticación, especialmente si utilizan tipos de cifrado antiguos como **RC4 (0x17)**, visibles en el tráfico de red o logs detallados de Kerberos.
