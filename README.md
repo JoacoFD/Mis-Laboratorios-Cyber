@@ -23,7 +23,7 @@ Se ejecutó un escaneo de red exhaustivo para mapear los servicios del Controlad
 <img width="1918" height="930" alt="image" src="https://github.com/user-attachments/assets/8776a4ff-d34f-42ee-84a4-3e89f6825ba0" />
 
 
-### Análisis de Exposición (Visión SOC):
+### Análisis de Exposición:
 * **Identificación de Activos:** La exposición de los puertos **88 (Kerberos)**, **389 (LDAP)** y **445 (SMB)** confirma que el activo es un Controlador de Dominio (Tier 0) para el dominio `spookysec.local`.
 * **Vulnerabilidad de Enumeración:** El servicio LDAP y SMB permiten obtener información sobre la estructura de objetos del dominio, mientras que Kerberos permite validar usuarios mediante ataques de fuerza bruta.
 * **Detección de Intrusos:** Un escaneo con `--min-rate 5000` es altamente ruidoso y dispararía alertas de **"Port Scanning"** en un sistema de monitoreo. Como analista SOC, este es el primer IoC (Indicador de Compromiso) a investigar.
@@ -90,7 +90,7 @@ Utilicé **John the Ripper** con el diccionario `rockyou.txt` para descifrar el 
 
 ---
 
-## 🛡️ 7. Análisis de Detección (Perspectiva SOC/Blue Team)
+## 🛡️ 7. Análisis de Detección 
 Como analista de seguridad, la importancia de este laboratorio no es solo el acceso, sino la capacidad de detectar estas trazas en los **Logs Crudos** del sistema.
 
 ### Eventos Críticos Identificados:
@@ -104,7 +104,7 @@ Como analista de seguridad, la importancia de este laboratorio no es solo el acc
 2. **Mejora de Cifrado:** Forzar el uso de **AES-256** para Kerberos, deshabilitando RC4 y DES a nivel de dominio para dificultar el cracking offline.
 3. **Monitoreo:** Implementar alertas en el SIEM para el Event ID 4768 cuando el tipo de cifrado sea **0x17** (RC4).
 
-## 🛡️ 8. Conclusiones y Estrategia de Defensa (Perfil SOC)
+## 🛡️ 8. Conclusiones y Estrategia de Defensa 
 
 Como resultado de este laboratorio, se concluye que la mala configuración de cuentas (específicamente la desactivación de la pre-autenticación de Kerberos) representa un riesgo crítico de compromiso de identidad. Para mitigar estos riesgos en un entorno empresarial, se proponen las siguientes acciones:
 
